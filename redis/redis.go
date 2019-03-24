@@ -5,9 +5,13 @@ import (
 	"time"
 )
 
-var redisPool *redis.Pool
+var (
+	redisPool *redis.Pool
+	RedisHost = ""
+)
 
 func InitRedis(redisHost, redisPassword string, maxIdle, maxActive, idleTimeout int) {
+	RedisHost = redisHost
 	redisPool = &redis.Pool{
 		MaxIdle:     maxIdle,
 		IdleTimeout: time.Duration(idleTimeout) * time.Second,
@@ -62,7 +66,11 @@ func Delete(key string) (interface{}, error) {
 
 // 将值插入到列表头部
 func PushListHead(key, value string) (interface{}, error) {
-	conn := redisPool.Get()
+	//conn := redisPool.Get()
+	conn, err := redis.Dial("tcp", RedisHost)
+	if nil != err {
+		return nil, err
+	}
 	defer conn.Close()
 
 	return conn.Do("LPUSH", key, value)
@@ -76,8 +84,13 @@ func PopListHead(key string) (string, error) {
 	return redis.String(conn.Do("LPOP", key))
 }
 
+// 将值插入到列表尾部
 func PushListEnd(key, value string) (interface{}, error) {
-	conn := redisPool.Get()
+	//conn := redisPool.Get()
+	conn, err := redis.Dial("tcp", RedisHost)
+	if nil != err {
+		return nil, err
+	}
 	defer conn.Close()
 
 	return conn.Do("RPUSH", key, value)
