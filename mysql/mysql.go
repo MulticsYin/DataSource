@@ -23,6 +23,11 @@ func CloseMySQL() {
 	db.Close()
 }
 
+// 获取一个事务
+func GetTransaction() (*sql.Tx, error) {
+	return db.Begin()
+}
+
 // 根据SQL语句获取数据库信息
 func GetRows(sql string, args ...interface{}) ([]map[string]string, error) {
 	stmt, err := db.Prepare(sql)
